@@ -12,13 +12,12 @@ import static utils.Constants.GamePalette.LoadPalette;
 
 public class Application{
 
-    private GameWindow window;
-    private GamePanel panel;
+    private final GamePanel panel;
 
-    private int FPS_SET = 60;
-    private int UPS_SET = 120;
+    private final int FPS_SET = 60;
+    private final int UPS_SET = 120;
     private int framesCounter = 0, updatesCounter = 0;
-    private Timer[] gameTimers = new Timer[3];
+    private final Timer[] gameTimers = new Timer[3];
 
     private Player player;
     private LevelManager levelManager;
@@ -27,7 +26,7 @@ public class Application{
         initClasses();
 
         panel = new GamePanel(this);
-        window = new GameWindow("Pixtter", panel);
+        new GameWindow("Pixtter", panel);
         panel.requestFocus();
 
         run();
@@ -35,7 +34,7 @@ public class Application{
 
     private void initClasses() {
         LoadPalette();
-        player = new Player(GAME_WIDTH/2 - 50, GAME_HEIGHT/2, this);
+        player = new Player((float)GAME_WIDTH/2 - 50, (float)GAME_HEIGHT/2, this);
         levelManager = new LevelManager(this);
 
         for (int i = 0; i < gameTimers.length; i++) {

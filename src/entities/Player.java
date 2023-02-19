@@ -20,7 +20,7 @@ import static utils.Constants.PlayerConstants.PhysicsConstants.*;
 
 public class Player extends Entity{
 
-    private Application app;
+    private final Application app;
 
     private BufferedImage[][] animations;
     private int aniTick, aniIndex, aniSpeed = 25;
@@ -34,7 +34,7 @@ public class Player extends Entity{
     private int jumpCooldown = JUMP_CD;
     private boolean canJump = false;
 
-    private Rectangle bodyCollider;
+    private final Rectangle bodyCollider;
     private Vector<Rectangle> collidedObjectDebug = new Vector<>();
 
     public Player(float x, float y, Application app) {
@@ -68,11 +68,10 @@ public class Player extends Entity{
         }
 
         if(movementDir[UP] && !movementDir[DOWN]){
-            if(canJump){ // jump
+            if(canJump && playerMovement.y == 0){ // jump
                 playerMovement.y -= JUMP_FORCE;
                 jumpCooldown = JUMP_CD;
                 canJump = false;
-                System.out.println("jump");
             }
         } else if(movementDir[DOWN] && !movementDir[UP]){
             playerMovement.y += playerSpeed * 0.01;
@@ -146,107 +145,12 @@ public class Player extends Entity{
                     jumpCooldown = 0;
                 }
 
-                // stairs
+                // stairs auto bump
                 if(bodyCollider.y + bodyCollider.height - rect.y > 1 && bodyCollider.y + bodyCollider.height - rect.y <= TILE_SIZE + 1 && playerMovement.x == 0){
                     playerMovement.y -= BUMP_FORCE;
                 }
 
             }
-        }
-    }
-
-    private void collisionHandlerOne(){
-        Vector<Rectangle> collidedObject = app.getLevelManager().collisionTrigger(bodyCollider);
-        collidedObjectDebug = collidedObject;
-
-        if(collidedObject.size() > 0){ // collision detected
-
-            boolean horizontalCollision = false;
-
-            for(Rectangle rect : collidedObject){
-                if(Math.abs(rect.getCenterX() - bodyCollider.getCenterX()) < ((float)bodyCollider.width/2 + (float)rect.width/2) && Math.abs(rect.y - bodyCollider.y) <= TILE_SIZE){
-                    horizontalCollision = true;
-                    playerMovement.x = 0;
-                }
-
-                // apply stairs bump
-                if(bodyCollider.y + bodyCollider.height - rect.y > TILE_SIZE && !horizontalCollision){
-                    if(bumpCooldown != 0){
-                        bumpCooldown--;
-                    } else {
-                        playerMovement.y -= BUMP_FORCE;
-                        bumpCooldown = BUMP_CD;
-                    }
-                }
-                else {
-                    if(playerMovement.y > 0){
-                        playerMovement.y = 0;
-                        canJump = true;
-                    }
-                }
-            }
-        } else { // gravity
-            playerMovement.y += GRAVITY_PULL;
-        }
-    }
-
-    private void collisionHandlerTwo(){
-        Vector<Rectangle> collidedObject = app.getLevelManager().collisionTrigger(bodyCollider);
-        collidedObjectDebug = collidedObject;
-
-        if(collidedObject.size() > 0){ // collision detected
-
-            vec2d playerVec = new vec2d(playerMovement);
-            playerVec.normalize();
-
-            vec2d yDir = new vec2d(0, 1f);
-            vec2d xDir = new vec2d(1f, 0);
-            jointCollision = collidedObject.elementAt(0);
-
-            for(Rectangle rect : collidedObject){
-                jointCollision.add(rect);
-
-                vec2d collisionVec = new vec2d((float)bodyCollider.getCenterX(), (float)bodyCollider.getCenterY(), (float)rect.getCenterX(), (float)rect.getCenterY());
-                collisionVec.normalize();
-
-                System.out.println(" dx: " + playerVec.x + " dy: " + playerVec.y + " col x: " + collisionVec.x + " col y: " + collisionVec.y);
-
-                if(playerVec.dotProduct(collisionVec) > 0.9f){
-                    float yDot = yDir.dotProduct(collisionVec);
-                    System.out.println(yDot);
-                    float xDot = xDir.dotProduct(collisionVec);
-
-                    if((yDot > 0.9f && playerMovement.y > 0) || (yDot < -0.9f && playerMovement.y < 0)){
-                        playerMovement.y = 0;
-                    }
-
-                    if((xDot > 0.9f && playerMovement.x > 0) || (xDot < -0.9f && playerMovement.x < 0)){
-                        playerMovement.x = 0;
-                    }
-
-                }
-            }
-
-            vec2d collisionVec = new vec2d((float)bodyCollider.getCenterX(), (float)bodyCollider.getCenterY(), (float)jointCollision.getCenterX(), (float)jointCollision.getCenterY());
-            collisionVec.normalize();
-
-//            System.out.println(" dx: " + playerVec.x + " dy: " + playerVec.y + " col x: " + collisionVec.x + " col y: " + collisionVec.y);
-
-            if(playerVec.dotProduct(collisionVec) > 0.7f){
-                float yDot = yDir.dotProduct(collisionVec);
-                float xDot = xDir.dotProduct(collisionVec);
-                System.out.println(yDot + " " + xDot);
-
-                if((yDot > 0.7f && playerMovement.y > 0) || (yDot < -0.7f && playerMovement.y < 0)){
-                    playerMovement.y = 0;
-                }
-
-                if((xDot > 0.7f && playerMovement.x > 0) || (xDot < -0.7f && playerMovement.x < 0)){
-                    playerMovement.x = 0;
-                }
-            }
-        } else { // gravity
-            playerMovement.y += GRAVITY_PULL;
         }
     }
 
@@ -270,8 +174,6 @@ public class Player extends Entity{
         g.setColor(Color.BLUE);
         g.drawLine((int) bodyCollider.getCenterX(), (int) bodyCollider.getCenterY(), (int) (bodyCollider.getCenterX() + playerMovement.x * 50f), (int) (bodyCollider.getCenterY() + playerMovement.y * 50f));
 
-        g.setColor(Color.GREEN);
-        g.drawRect(jointCollision.x, jointCollision.y, jointCollision.width, jointCollision.height);
     }
 
     private void setAnimation(){
@@ -337,13 +239,5 @@ public class Player extends Entity{
 
     public void resetMovement(){
         movementDir = new boolean[4];
-    }
-
-    public vec2d getPosition(){
-        return position;
-    }
-
-    public vec2d getMovementDir(){
-        return playerMovement.multiplyVec(playerMovement);
     }
 }

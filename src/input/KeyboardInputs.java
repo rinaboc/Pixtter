@@ -8,7 +8,7 @@ import java.awt.event.KeyListener;
 import static utils.Constants.PlayerConstants.MovementDir.*;
 
 public class KeyboardInputs implements KeyListener {
-    private GamePanel gamePanel;
+    private final GamePanel gamePanel;
     public KeyboardInputs(GamePanel gamePanel){
         this.gamePanel = gamePanel;
     }

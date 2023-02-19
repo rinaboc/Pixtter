@@ -4,7 +4,6 @@ import utils.math.vec2d;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,14 +14,11 @@ import static utils.Constants.GamePalette.PALETTE;
 import static utils.Constants.LevelConstants.*;
 
 public class Level {
-    private Color[][] elements;
-    private Vector<Rectangle> collidableObjects;
-    private Rectangle[] collArray;
-    private Rectangle drawingSpace;
+    private final Rectangle[] collArray;
+    private final Rectangle drawingSpace;
     private int mapEnd;
 
     Level(String map){
-        collidableObjects = new Vector<>();
         collArray = new Rectangle[255];
         drawingSpace = new Rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT);
         loadMap(map);
@@ -31,49 +27,40 @@ public class Level {
     public void render(Graphics g){
 
         g.setColor(PALETTE[7]);
-        for(Rectangle rect : collidableObjects){
+        for(Rectangle rect : collArray){
+            if(rect == null) break;
+
             if(drawingSpace.intersects(rect)){
                 g.fillRect(rect.x - drawingSpace.x, rect.y, rect.width, rect.height);
             }
         }
 
         g.drawRect(0,GAME_HEIGHT - TILE_SIZE,TILE_SIZE, TILE_SIZE);
-
-//        for (int j = 0; j < elements.length; j++) {
-//            for (int i = 0; i < elements[j].length; i++) {
-//                if(elements[j][i].getGreen() != 255){
-//                    g.setColor(PALETTE[7]);
-//                    g.fillRect(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-//
-//                }
-//                if(elements[j][i].getGreen() == 2){
-//                    g.setColor(PALETTE[8]);
-//                    g.fillOval(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-//                }
-//            }
-//        }
     }
 
     private void loadMap(String path){
         InputStream is = getClass().getResourceAsStream(path);
         try {
             BufferedImage img = ImageIO.read(is);
-            System.out.println(img.getWidth() + " " + img.getHeight());
+
             mapEnd = img.getWidth() * TILE_SIZE;
 
-            elements = new Color[img.getWidth()][img.getHeight()];
-            System.out.println(elements.length + " " + elements[0].length);
+            // store each non transparent pixel of the source map according to their separate RGB values
+            // useful for indexing and map generation
+            for (int j = 0; j < img.getWidth(); j++) {
+                for (int i = 0; i < img.getHeight(); i++) {
 
-            for (int j = 0; j < elements.length; j++) {
-                for (int i = 0; i < elements[j].length; i++) {
-                    elements[j][i] = Color.decode(Integer.toString(img.getRGB(j, i)));
-                    int green = elements[j][i].getGreen();
-                    if(green != 255){
-                        collidableObjects.add(new Rectangle((j)*TILE_SIZE, (i-2)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                        if(collArray[green-1] == null){
-                            collArray[green-1] = new Rectangle((j)*TILE_SIZE, (i-2)*TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    // green value represents objects with collision
+                    // rectangles get stored in the collision array at the corresponding index
+                    int greenValue = Color.decode(Integer.toString(img.getRGB(j, i))).getGreen();
+                    if(greenValue != 255){
+
+                        if(collArray[greenValue-1] == null){
+                            collArray[greenValue-1] = new Rectangle((j)*TILE_SIZE, (i)*TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                            continue;
                         }
-                        collArray[green-1].add(new Rectangle((j)*TILE_SIZE, (i-2)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+
+                        collArray[greenValue-1].add(new Rectangle((j)*TILE_SIZE, (i)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
                     }
                 }
             }
@@ -90,8 +77,11 @@ public class Level {
 
     public Vector<Rectangle> collisionTrigger(Rectangle bounds){
         Vector<Rectangle> ret = new Vector<>();
+
         for(Rectangle rect : collArray){
             if(rect == null) return ret;
+
+            // position rectangle into view
             Rectangle translatedRect = new Rectangle(rect);
             translatedRect.setLocation(translatedRect.x - drawingSpace.x, translatedRect.y);
 
@@ -102,9 +92,11 @@ public class Level {
         return ret;
     }
 
+    // used for scrolling on the map
     public void setDrawingSpace(vec2d v2){
         drawingSpace.translate((int)(v2.x * SCROLL_SPEED), 0);
 
+        // stop from scrolling out of map
         if(drawingSpace.x < 0){
             drawingSpace.x = 0;
         } else if(drawingSpace.x + drawingSpace.width >= mapEnd){
@@ -112,12 +104,8 @@ public class Level {
         }
     }
 
+    // is the player camera at either end of the map
     public boolean borderOfLevel(){
-
-        if(drawingSpace.x <= 0 || drawingSpace.x + drawingSpace.width >= mapEnd){
-            return true;
-        }
-
-        return false;
+        return drawingSpace.x <= 0 || drawingSpace.x + drawingSpace.width >= mapEnd;
     }
 }
