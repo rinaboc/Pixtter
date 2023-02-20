@@ -1,5 +1,8 @@
 package levels;
 
+import core.Application;
+import entities.Enemy;
+import entities.Entity;
 import utils.math.vec2d;
 
 import javax.imageio.ImageIO;
@@ -18,10 +21,20 @@ public class Level {
     private final Rectangle drawingSpace;
     private int mapEnd;
 
-    Level(String map){
+    private Entity[] entities;
+
+    Level(String map, Application app){
         collArray = new Rectangle[255];
+        entities = new Entity[255];
         drawingSpace = new Rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT);
-        loadMap(map);
+        loadMap(map, app);
+    }
+
+    public void update(){
+        for (Entity entity: entities){
+            if(entity == null) break;
+            entity.update();
+        }
     }
 
     public void render(Graphics g){
@@ -35,10 +48,17 @@ public class Level {
             }
         }
 
+        g.setColor(PALETTE[10]);
+        for(Entity entity: entities){
+            if(entity == null) break;
+            Rectangle bounds = entity.getBounds();
+            g.fillRect(bounds.x -drawingSpace.x, bounds.y, bounds.width, bounds.height);
+        }
+
         g.drawRect(0,GAME_HEIGHT - TILE_SIZE,TILE_SIZE, TILE_SIZE);
     }
 
-    private void loadMap(String path){
+    private void loadMap(String path, Application app){
         InputStream is = getClass().getResourceAsStream(path);
         try {
             BufferedImage img = ImageIO.read(is);
@@ -53,7 +73,7 @@ public class Level {
                     // green value represents objects with collision
                     // rectangles get stored in the collision array at the corresponding index
                     int greenValue = Color.decode(Integer.toString(img.getRGB(j, i))).getGreen();
-                    if(greenValue != 255){
+                    if(greenValue != 255 && greenValue != 0){
 
                         if(collArray[greenValue-1] == null){
                             collArray[greenValue-1] = new Rectangle((j)*TILE_SIZE, (i)*TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -61,6 +81,18 @@ public class Level {
                         }
 
                         collArray[greenValue-1].add(new Rectangle((j)*TILE_SIZE, (i)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                    }
+
+                    int redValue = Color.decode(Integer.toString(img.getRGB(j, i))).getRed();
+                    if(redValue != 255 && redValue != 0){
+                        if(entities[redValue-1] == null){
+                            entities[redValue-1] = new Enemy(app, (j)*TILE_SIZE, (i)*TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                            continue;
+                        }
+
+                        Rectangle newBound = new Rectangle(entities[redValue-1].getBounds());
+                        newBound.add(new Rectangle((j)*TILE_SIZE, (i)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+                        entities[redValue-1].setBounds(newBound);
                     }
                 }
             }

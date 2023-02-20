@@ -6,7 +6,6 @@ import utils.math.vec2d;
 import java.awt.*;
 import java.util.Vector;
 
-import static utils.Constants.GameDimensions.*;
 
 public class LevelManager {
     private Application app;
@@ -14,7 +13,7 @@ public class LevelManager {
 
     public LevelManager(Application app){
         this.app = app;
-        level1 = new Level("/level1.png");
+        level1 = new Level("/level1.png", app);
     }
 
     public void render(Graphics g){
@@ -22,7 +21,7 @@ public class LevelManager {
     }
 
     public void update(){
-
+        level1.update();
     }
 
     public void scrollLevel(vec2d v2){
