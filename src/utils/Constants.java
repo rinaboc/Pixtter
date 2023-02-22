@@ -73,13 +73,13 @@ public class Constants {
             public static final float BUMP_FORCE = 0.14f;
 
             public static final float WALKING_SPEED = 0.8f;
-            public static final float RUNNING_SPEED = 0.81f;
+            public static final float RUNNING_SPEED = 0.95f;
         }
 
         public static class PhysicsConstants{
             public static final float GRAVITY_PULL = 0.05f;
-            public static final float GROUND_DRAG = 0.5f;
-            public static final float AIR_DRAG = 0.5f;
+            public static final float GROUND_DRAG = 0.65f;
+            public static final float AIR_DRAG = 0.7f;
         }
     }
 }

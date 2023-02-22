@@ -39,4 +39,8 @@ public class LevelManager {
     public boolean canScroll(){
         return !level1.borderOfLevel();
     }
+
+    public Rectangle getOffset(){
+        return level1.getOffset();
+    }
 }

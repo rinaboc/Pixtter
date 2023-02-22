@@ -18,8 +18,10 @@ public class Enemy extends Entity{
     private vec2d movementVec = new vec2d(0,0);
     private float movementSpeed = 0.4f;
     private Rectangle collider;
+
     private int movementCD = 100;
     private boolean[] movementDir = new boolean[2];
+    private vec2d spawnPosition;
 
     private Vector<Rectangle> collidedObjectDebug = new Vector<>();
 
@@ -27,6 +29,7 @@ public class Enemy extends Entity{
         super(x, y, width, height);
         this.app = app;
         collider = new Rectangle((int) x, (int) y, width, height);
+        spawnPosition = new vec2d(x, y);
     }
 
     @Override
@@ -68,8 +71,24 @@ public class Enemy extends Entity{
         if(movementCD != 0){
             return;
         }
-        movementCD = 500;
 
+        vec2d spawnVec = new vec2d(position, spawnPosition);
+
+        if(spawnVec.getLength() > 100f){
+            if(spawnVec.x > 0){
+                movementVec.x = movementSpeed;
+                movementDir[0] = false;
+                movementDir[1] = true;
+            } else {
+                movementVec.x = -movementSpeed;
+                movementDir[0] = true;
+                movementDir[1] = false;
+            }
+
+            return;
+        }
+
+        movementCD = 500;
         int rndNum = rnd.nextInt(20);
 
         if(rndNum % 3 == 0) {

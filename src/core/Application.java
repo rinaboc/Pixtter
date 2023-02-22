@@ -82,7 +82,7 @@ public class Application{
 
     public void render(Graphics g){
         levelManager.render(g);
-        player.render(g, 0);
+        player.render(g, levelManager.getOffset().x);
     }
 
     public void windowFocusLost(){

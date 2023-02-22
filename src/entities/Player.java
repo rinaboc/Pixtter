@@ -17,6 +17,7 @@ import static utils.Constants.PlayerConstants.PhysicsConstants.*;
 public class Player extends Entity{
 
     private final Application app;
+    private vec2d worldPosition;
 
     private final PlayerSprite sprite;
 
@@ -35,6 +36,9 @@ public class Player extends Entity{
     public Player(float x, float y, Application app) {
         super(x, y, 100, 48);
         this.app = app;
+
+        worldPosition = new vec2d(x, y);
+
         bodyCollider = new Rectangle((int)(x + width/3), (int)(y + height/3), 2*width/3, 2*height/3);
         sprite = new PlayerSprite();
     }
@@ -56,20 +60,20 @@ public class Player extends Entity{
     @Override
     public void render(Graphics g, int xOffset){
         if(mirrorPlayer){
-            g.drawImage(sprite.getImage(), (int)position.x+width, (int)position.y, -width, height, null);
+            g.drawImage(sprite.getImage(), (int)position.x+width - xOffset, (int)position.y, -width, height, null);
         } else {
-            g.drawImage(sprite.getImage(), (int)position.x, (int)position.y, width, height, null);
+            g.drawImage(sprite.getImage(), (int)position.x - xOffset, (int)position.y, width, height, null);
         }
 
         // DEBUG DRAW
-//        g.setColor(Color.PINK);
-//        g.drawRect(bodyCollider.x, bodyCollider.y, bodyCollider.width, bodyCollider.height);
-//
-//        if(collidedObjectDebug != null){
-//            for(Rectangle rect : collidedObjectDebug){
-//                g.drawRect(rect.x, rect.y, rect.width, rect.height);
-//            }
-//        }
+        g.setColor(Color.PINK);
+        g.drawRect(bodyCollider.x - xOffset, bodyCollider.y, bodyCollider.width, bodyCollider.height);
+
+        if(collidedObjectDebug != null){
+            for(Rectangle rect : collidedObjectDebug){
+                g.drawRect(rect.x - xOffset, rect.y, rect.width, rect.height);
+            }
+        }
 //
 //        g.setColor(Color.BLUE);
 //        g.drawLine((int) bodyCollider.getCenterX(), (int) bodyCollider.getCenterY(), (int) (bodyCollider.getCenterX() + playerMovement.x * 50f), (int) (bodyCollider.getCenterY() + playerMovement.y * 50f));
@@ -104,18 +108,16 @@ public class Player extends Entity{
 
         // moving on the map
         if(!playerMovement.nullVec()){
-            // scroll map -> horizontal movement
-            if((!app.getLevelManager().canScroll()) || (Math.abs(position.x + (float)width/2 - (float)GAME_WIDTH/2) >= 1f)){
-                position.x += playerMovement.x;
-            }
-            app.getLevelManager().scrollLevel(playerMovement);
-
             // apply drags
             if(canJump) playerMovement.x *= GROUND_DRAG;
             else playerMovement.x *= AIR_DRAG;
+            // apply movement to character position
+            position = position.addVec(playerMovement);
+            // scroll map -> horizontal movement
+            app.getLevelManager().scrollLevel(position.addVec(new vec2d(width/2, 0)));
 
-            // vertical movement
-            position.y += playerMovement.y;
+
+            System.out.println(position.x + " " + position.y);
 
             moving = true;
         } else {
@@ -131,7 +133,7 @@ public class Player extends Entity{
     }
 
     private void collisionHandler(){
-        Vector<Rectangle> collidedObject = app.getLevelManager().collisionTrigger(bodyCollider);
+        Vector<Rectangle> collidedObject = app.getLevelManager().hiddenCollisionTrigger(bodyCollider);
         collidedObjectDebug = collidedObject;
 
         if(collidedObject.size() > 0){

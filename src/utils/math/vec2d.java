@@ -18,6 +18,11 @@ public class vec2d {
         this.y = y2 - y1;
     }
 
+    public vec2d(vec2d v1, vec2d v2){
+        this.x = v2.x - v1.x;
+        this.y = v2.y - v1.y;
+    }
+
     public void normalize(){
         float l = (float)Math.sqrt(x * x + y * y);
         x /= l; y /= l;

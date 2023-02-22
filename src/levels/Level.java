@@ -139,7 +139,8 @@ public class Level {
 
     // used for scrolling on the map
     public void setDrawingSpace(vec2d v2){
-        drawingSpace.translate((int)(v2.x * SCROLL_SPEED), 0);
+//        drawingSpace.translate((int)(v2.x * SCROLL_SPEED), 0);
+        drawingSpace.setLocation((int) (v2.x - drawingSpace.width/2), 0);
 
         // stop from scrolling out of map
         if(drawingSpace.x < 0){
@@ -152,5 +153,9 @@ public class Level {
     // is the player camera at either end of the map
     public boolean borderOfLevel(){
         return drawingSpace.x <= 0 || drawingSpace.x + drawingSpace.width >= mapEnd;
+    }
+
+    public Rectangle getOffset(){
+        return drawingSpace;
     }
 }
