@@ -51,8 +51,9 @@ public class Level {
         g.setColor(PALETTE[10]);
         for(Entity entity: entities){
             if(entity == null) break;
-            Rectangle bounds = entity.getBounds();
-            g.fillRect(bounds.x -drawingSpace.x, bounds.y, bounds.width, bounds.height);
+            entity.render(g, drawingSpace.x);
+//            Rectangle bounds = entity.getBounds();
+//            g.fillRect(bounds.x - drawingSpace.x, bounds.y, bounds.width, bounds.height);
         }
 
         g.drawRect(0,GAME_HEIGHT - TILE_SIZE,TILE_SIZE, TILE_SIZE);
@@ -119,6 +120,18 @@ public class Level {
 
             if(translatedRect.intersects(bounds)){
                 ret.add(translatedRect);
+            }
+        }
+        return ret;
+    }
+    public Vector<Rectangle> hiddenCollisionTrigger(Rectangle bounds){
+        Vector<Rectangle> ret = new Vector<>();
+
+        for(Rectangle rect : collArray){
+            if(rect == null) return ret;
+
+            if(rect.intersects(bounds)){
+                ret.add(rect);
             }
         }
         return ret;

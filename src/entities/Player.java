@@ -54,7 +54,7 @@ public class Player extends Entity{
     }
 
     @Override
-    public void render(Graphics g){
+    public void render(Graphics g, int xOffset){
         if(mirrorPlayer){
             g.drawImage(sprite.getImage(), (int)position.x+width, (int)position.y, -width, height, null);
         } else {
@@ -62,17 +62,17 @@ public class Player extends Entity{
         }
 
         // DEBUG DRAW
-        g.setColor(Color.PINK);
-        g.drawRect(bodyCollider.x, bodyCollider.y, bodyCollider.width, bodyCollider.height);
-
-        if(collidedObjectDebug != null){
-            for(Rectangle rect : collidedObjectDebug){
-                g.drawRect(rect.x, rect.y, rect.width, rect.height);
-            }
-        }
-
-        g.setColor(Color.BLUE);
-        g.drawLine((int) bodyCollider.getCenterX(), (int) bodyCollider.getCenterY(), (int) (bodyCollider.getCenterX() + playerMovement.x * 50f), (int) (bodyCollider.getCenterY() + playerMovement.y * 50f));
+//        g.setColor(Color.PINK);
+//        g.drawRect(bodyCollider.x, bodyCollider.y, bodyCollider.width, bodyCollider.height);
+//
+//        if(collidedObjectDebug != null){
+//            for(Rectangle rect : collidedObjectDebug){
+//                g.drawRect(rect.x, rect.y, rect.width, rect.height);
+//            }
+//        }
+//
+//        g.setColor(Color.BLUE);
+//        g.drawLine((int) bodyCollider.getCenterX(), (int) bodyCollider.getCenterY(), (int) (bodyCollider.getCenterX() + playerMovement.x * 50f), (int) (bodyCollider.getCenterY() + playerMovement.y * 50f));
 
     }
 

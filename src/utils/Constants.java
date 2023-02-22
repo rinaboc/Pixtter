@@ -70,7 +70,7 @@ public class Constants {
             public static final int JUMP_CD = 120;
             public static final float JUMP_FORCE = 2.5f;
 
-            public static final float BUMP_FORCE = 0.18f;
+            public static final float BUMP_FORCE = 0.14f;
 
             public static final float WALKING_SPEED = 0.8f;
             public static final float RUNNING_SPEED = 0.81f;
