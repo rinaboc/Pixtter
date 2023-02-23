@@ -114,22 +114,6 @@ public class Level {
         for(Rectangle rect : collArray){
             if(rect == null) return ret;
 
-            // position rectangle into view
-            Rectangle translatedRect = new Rectangle(rect);
-            translatedRect.setLocation(translatedRect.x - drawingSpace.x, translatedRect.y);
-
-            if(translatedRect.intersects(bounds)){
-                ret.add(translatedRect);
-            }
-        }
-        return ret;
-    }
-    public Vector<Rectangle> hiddenCollisionTrigger(Rectangle bounds){
-        Vector<Rectangle> ret = new Vector<>();
-
-        for(Rectangle rect : collArray){
-            if(rect == null) return ret;
-
             if(rect.intersects(bounds)){
                 ret.add(rect);
             }

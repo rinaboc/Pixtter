@@ -32,11 +32,7 @@ public class LevelManager {
         return level1.collisionTrigger(bounds);
     }
 
-    public Vector<Rectangle> hiddenCollisionTrigger(Rectangle bounds){
-        return level1.hiddenCollisionTrigger(bounds);
-    }
-
-    public boolean canScroll(){
+    public boolean atBorderOfLevel(){
         return !level1.borderOfLevel();
     }
 

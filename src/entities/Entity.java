@@ -3,7 +3,6 @@ package entities;
 import utils.math.vec2d;
 
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 
 public abstract class Entity {
     protected vec2d position;

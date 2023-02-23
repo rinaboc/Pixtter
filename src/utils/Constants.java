@@ -67,7 +67,7 @@ public class Constants {
         }
 
         public static class MovementConstants{
-            public static final int JUMP_CD = 120;
+            public static final int JUMP_CD = 80;
             public static final float JUMP_FORCE = 2.5f;
 
             public static final float BUMP_FORCE = 0.14f;
