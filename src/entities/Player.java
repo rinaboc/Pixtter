@@ -49,8 +49,8 @@ public class Player extends MovingEntity{
         }
 
         // DEBUG DRAW
-        g.setColor(Color.PINK);
-        g.drawRect(collider.x - xOffset, collider.y, collider.width, collider.height);
+//        g.setColor(Color.PINK);
+//        g.drawRect(collider.x - xOffset, collider.y, collider.width, collider.height);
 
         if(collidedObjectDebug != null){
             for(Rectangle rect : collidedObjectDebug){
@@ -126,16 +126,16 @@ public class Player extends MovingEntity{
 
     private void setAnimation(){
         if(moving && movementSpeed == WALKING_SPEED){
-            sprite.setPlayerAction(WALKING);
+            sprite.setAnimationAction(WALKING);
         } else if(moving && movementSpeed == RUNNING_SPEED){
-            sprite.setPlayerAction(RUNNING);
+            sprite.setAnimationAction(RUNNING);
         }
         else {
-            sprite.setPlayerAction(IDLE);
+            sprite.setAnimationAction(IDLE);
         }
 
         if(movementVec.y != 0){
-            sprite.setPlayerAction(FALLING);
+            sprite.setAnimationAction(FALLING);
         }
     }
 
@@ -153,5 +153,9 @@ public class Player extends MovingEntity{
 
     public void resetMovement(){
         movementDir = new boolean[4];
+    }
+
+    public vec2d getPosition(){
+        return position;
     }
 }

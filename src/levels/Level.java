@@ -3,6 +3,7 @@ package levels;
 import core.Application;
 import entities.Enemy;
 import entities.Entity;
+import entities.Wolf;
 import utils.math.vec2d;
 
 import javax.imageio.ImageIO;
@@ -87,16 +88,17 @@ public class Level {
                     int redValue = Color.decode(Integer.toString(img.getRGB(j, i))).getRed();
                     if(redValue != 255 && redValue != 0){
                         if(entities[redValue-1] == null){
-                            entities[redValue-1] = new Enemy(app, (j)*TILE_SIZE, (i)*TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                            entities[redValue-1] = new Wolf(app, (j)*TILE_SIZE, (i)*TILE_SIZE - 200);
                             continue;
                         }
 
-                        Rectangle newBound = new Rectangle(entities[redValue-1].getBounds());
-                        newBound.add(new Rectangle((j)*TILE_SIZE, (i)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-                        entities[redValue-1].setBounds(newBound);
+//                        Rectangle newBound = new Rectangle(entities[redValue-1].getBounds());
+//                        newBound.add(new Rectangle((j)*TILE_SIZE, (i)*TILE_SIZE, TILE_SIZE, TILE_SIZE));
+//                        entities[redValue-1].setBounds(newBound);
                     }
                 }
             }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

@@ -78,9 +78,7 @@ public abstract class MovingEntity extends Entity{
         }
     }
 
-    @Override
-    public void setBounds(Rectangle rect) {
-        super.setBounds(rect);
+    public void setCollider(Rectangle rect) {
         collider.setBounds(rect);
     }
 }
