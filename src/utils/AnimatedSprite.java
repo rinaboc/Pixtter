@@ -6,12 +6,11 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static utils.Constants.PlayerConstants.GetSpriteAmount;
+import static utils.Constants.PlayerConstants.*;
 
 public class AnimatedSprite {
     protected BufferedImage[][] animations;
     protected int aniTick, aniIndex;
-    protected final int aniSpeed = 25;
     protected int animationAction;
 
     public AnimatedSprite(String path, int row, int col, int width, int height){
@@ -27,6 +26,9 @@ public class AnimatedSprite {
         return animations[animationAction][aniIndex];
     }
 
+    public void restartAnimation(){
+        aniIndex = 0;
+    }
 
     public void setAnimationAction(int animationAction){
         this.animationAction = animationAction;
@@ -35,17 +37,20 @@ public class AnimatedSprite {
 
     private void updateAnimationTick() {
         aniTick++;
-        if(aniTick >= aniSpeed){
+        if(aniTick >= GetSpriteAnimationSpeed(animationAction)){
             aniTick = 0;
             aniIndex++;
             checkAnimationIndexOverflow();
         }
     }
 
-    private void checkAnimationIndexOverflow(){
+    protected boolean checkAnimationIndexOverflow(){
         if(aniIndex >= GetSpriteAmount(animationAction)){
             aniIndex = 0;
+            return true;
         }
+
+        return false;
     }
 
     private void loadAnimations(String path, int width, int height) {

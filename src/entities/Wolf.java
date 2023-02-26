@@ -17,16 +17,15 @@ public class Wolf extends Enemy{
     public Wolf(Application app, float x, float y) {
         super(app, x, y, 160, 128);
         sprite = new AnimatedSprite("/wolf-spritesheet.png", 2, 4, 80, 64);
-        collider = new Rectangle((int) (x + width/6), (int) (y), (int) (4.5*width/6), height);
+        collider = new Rectangle((int) (x + width/9), (int) (y), (int) (4.5*width/6), height);
     }
 
     @Override
     public void update() {
         super.update();
 
-        mirrorImage = movementDir[LEFT];
+        mirrorImage = movementDir[RIGHT];
         setAnimation();
-        sprite.update();
     }
 
     @Override
@@ -34,9 +33,9 @@ public class Wolf extends Enemy{
         super.updatePosition();
 
         if(mirrorImage){
-            collider.setLocation((int) (position.x + width/6), (int) position.y);
+            collider.setLocation((int) (position.x + width/9), (int) position.y);
         } else {
-            collider.setLocation((int)(position.x + width/9), (int) position.y);
+            collider.setLocation((int)(position.x + width/6), (int) position.y);
         }
     }
 
@@ -50,6 +49,7 @@ public class Wolf extends Enemy{
 
     @Override
     public void render(Graphics g, int xOffset) {
+        sprite.update();
         if(mirrorImage){
             g.drawImage(sprite.getImage(), (int) (position.x + width - xOffset), (int) position.y, -width, height, null);
         } else {

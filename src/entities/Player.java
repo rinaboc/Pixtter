@@ -15,7 +15,7 @@ public class Player extends MovingEntity{
 
     private final PlayerSprite sprite;
 
-    private boolean moving = false, mirrorPlayer = false;
+    private boolean moving = false, mirrorPlayer = false, turning = false;
 
     private int jumpCooldown = JUMP_CD;
     private boolean canJump = false;
@@ -25,24 +25,26 @@ public class Player extends MovingEntity{
 
         collider = new Rectangle((int)(x + width/3), (int)(y + height/3), 2*width/3, 2*height/3);
         movementSpeed = WALKING_SPEED;
-        sprite = new PlayerSprite();
+        sprite = new PlayerSprite(this);
     }
 
     @Override
     public void update(){
 
         jumpUpdate();
-
         updatePosition();
-        setAnimation();
-        sprite.update();
+
     }
 
 
 
     @Override
     public void render(Graphics g, int xOffset){
-        if(mirrorPlayer){
+
+        setAnimation();
+        sprite.update();
+
+        if(mirrorPlayer && !turning || (!mirrorPlayer && turning)){
             g.drawImage(sprite.getImage(), (int)position.x+width - xOffset, (int)position.y, -width, height, null);
         } else {
             g.drawImage(sprite.getImage(), (int)position.x - xOffset, (int)position.y, width, height, null);
@@ -74,7 +76,9 @@ public class Player extends MovingEntity{
     protected void updatePosition() {
 
         moving = false;
+        boolean wasMirror = mirrorPlayer;
 
+        // set the movement vector according to keys pressed
         if(movementDir[LEFT] && !movementDir[RIGHT]){
             movementVec.x -= movementSpeed;
             mirrorPlayer = true;
@@ -93,10 +97,12 @@ public class Player extends MovingEntity{
             movementVec.y += movementSpeed * 0.01;
         }
 
+        // apply physics
         movementVec.y += GRAVITY_PULL;
 
         collisionHandler();
 
+        // allow jumping after hitting object
         if(movementVec.y != 0 && canJump){
             canJump = false;
         }
@@ -122,9 +128,21 @@ public class Player extends MovingEntity{
         } else {
             collider.setLocation((int)(position.x + width/4), (int)(position.y + height/3));
         }
+
+        // check if player wants to go in opposite direction -> apply turning animation
+        if(wasMirror != mirrorPlayer){
+            turning = true;
+            sprite.restartAnimation();
+        }
     }
 
     private void setAnimation(){
+
+        if(turning){
+            sprite.setAnimationAction(TURNING);
+            return;
+        }
+
         if(moving && movementSpeed == WALKING_SPEED){
             sprite.setAnimationAction(WALKING);
         } else if(moving && movementSpeed == RUNNING_SPEED){
@@ -137,6 +155,7 @@ public class Player extends MovingEntity{
         if(movementVec.y != 0){
             sprite.setAnimationAction(FALLING);
         }
+
     }
 
     public void runningAction(boolean status){
@@ -157,5 +176,9 @@ public class Player extends MovingEntity{
 
     public vec2d getPosition(){
         return position;
+    }
+
+    public void setTurning(boolean turning){
+        this.turning = turning;
     }
 }
