@@ -78,6 +78,20 @@ public abstract class MovingEntity extends Entity{
         }
     }
 
+    public void attackHandler(vec2d attackerPosition){
+        vec2d attackVec = new vec2d(attackerPosition, position);
+
+        if(attackVec.x < 0){
+            movementVec.x = -ATTACK_FORCE;
+        } else {
+            movementVec.x = ATTACK_FORCE;
+        }
+
+        movementDir[LEFT] = movementDir[RIGHT] = false;
+
+        movementVec.y -= JUMP_FORCE / 2;
+    }
+
     public void setCollider(Rectangle rect) {
         collider.setBounds(rect);
     }

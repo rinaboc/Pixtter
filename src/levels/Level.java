@@ -123,6 +123,19 @@ public class Level {
         return ret;
     }
 
+    public Vector<Entity> entityTrigger(Rectangle bounds){
+        Vector<Entity> ret = new Vector<>();
+
+        for(Entity entity : entities){
+            if(entity == null) return ret;
+
+            if(entity.getBounds().intersects(bounds)){
+                ret.add(entity);
+            }
+        }
+        return ret;
+    }
+
     // used for scrolling on the map
     public void setDrawingSpace(vec2d v2){
 //        drawingSpace.translate((int)(v2.x * SCROLL_SPEED), 0);

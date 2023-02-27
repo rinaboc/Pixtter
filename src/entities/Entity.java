@@ -25,4 +25,6 @@ public abstract class Entity {
         position.x = rect.x; position.y = rect.y;
         width = rect.width; height = rect.height;
     }
+
+    public abstract void attackHandler(vec2d attackerPosition);
 }

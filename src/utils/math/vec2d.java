@@ -18,6 +18,7 @@ public class vec2d {
         this.y = y2 - y1;
     }
 
+    // vector from v1 point to v2
     public vec2d(vec2d v1, vec2d v2){
         this.x = v2.x - v1.x;
         this.y = v2.y - v1.y;

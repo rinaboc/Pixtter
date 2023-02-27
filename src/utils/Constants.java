@@ -46,6 +46,7 @@ public class Constants {
         public static final int RUNNING = 2;
         public static final int FALLING = 3;
         public static final int TURNING = 4;
+        public static final int ATTACK1 = 5;
 
         public static int GetSpriteAmount(int player_action){
             switch (player_action){
@@ -54,6 +55,7 @@ public class Constants {
                 case FALLING:
                 case TURNING:
                     return 3;
+                case ATTACK1:
                 case WALKING:
                     return 4;
                 default:
@@ -64,7 +66,9 @@ public class Constants {
         public static int GetSpriteAnimationSpeed(int animation_action){
             switch (animation_action){
                 case TURNING:
-                    return 6;
+                    return 4;
+                case ATTACK1:
+                    return 8;
                 default:
                     return 12;
             }
@@ -82,6 +86,7 @@ public class Constants {
             public static final float JUMP_FORCE = 2.5f;
 
             public static final float BUMP_FORCE = 0.14f;
+            public static final float ATTACK_FORCE = 1.1f;
 
             public static final float WALKING_SPEED = 0.8f;
             public static final float RUNNING_SPEED = 0.95f;

@@ -26,6 +26,7 @@ public class KeyboardInputs implements KeyListener {
             case KeyEvent.VK_S -> gamePanel.getApp().getPlayer().setMovementDir(DOWN, true);
             case KeyEvent.VK_A -> gamePanel.getApp().getPlayer().setMovementDir(LEFT, true);
             case KeyEvent.VK_SHIFT -> gamePanel.getApp().getPlayer().runningAction(true);
+            case KeyEvent.VK_SPACE -> gamePanel.getApp().getPlayer().attack();
         }
     }
 

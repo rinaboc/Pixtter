@@ -24,8 +24,7 @@ public class Wolf extends Enemy{
     public void update() {
         super.update();
 
-        mirrorImage = movementDir[RIGHT];
-        setAnimation();
+
     }
 
     @Override
@@ -40,7 +39,7 @@ public class Wolf extends Enemy{
     }
 
     private void setAnimation() {
-        if(movementVec.getLength() > 0.1f){
+        if(movementVec.getLength() > 0.1f && attackedCD == 0){
             sprite.setAnimationAction(WALKING);
         } else {
             sprite.setAnimationAction(IDLE);
@@ -49,7 +48,11 @@ public class Wolf extends Enemy{
 
     @Override
     public void render(Graphics g, int xOffset) {
+
+        mirrorImage = movementDir[RIGHT];
         sprite.update();
+        setAnimation();
+
         if(mirrorImage){
             g.drawImage(sprite.getImage(), (int) (position.x + width - xOffset), (int) position.y, -width, height, null);
         } else {

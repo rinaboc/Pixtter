@@ -17,6 +17,7 @@ public class Enemy extends MovingEntity{
     private int movementCD = 100;
     private final float spawnRadius = 300f;
     private vec2d spawnPosition;
+    protected int attackedCD = 100;
 
     public Enemy(Application app, float x, float y, int width, int height) {
         super(app, x, y, width, height);
@@ -48,6 +49,10 @@ public class Enemy extends MovingEntity{
             movementCD--;
         }
 
+        if(attackedCD != 0){
+            attackedCD--;
+        }
+
         determineDirection();
 
         movementVec.y += GRAVITY_PULL;
@@ -60,6 +65,11 @@ public class Enemy extends MovingEntity{
 
     private void determineDirection(){
         if(movementCD != 0){
+            return;
+        }
+
+        if(attackedCD != 0){
+            movementVec.x *= GROUND_DRAG;
             return;
         }
 
@@ -119,4 +129,13 @@ public class Enemy extends MovingEntity{
         }
     }
 
+    @Override
+    public void attackHandler(vec2d attackerPosition) {
+        super.attackHandler(attackerPosition);
+
+        attackedCD = 100;
+        movementCD += 200;
+
+        System.out.println("attack handling");
+    }
 }

@@ -5,6 +5,7 @@ import utils.PlayerSprite;
 import utils.math.vec2d;
 
 import java.awt.*;
+import java.util.Vector;
 
 import static utils.Constants.PlayerConstants.*;
 import static utils.Constants.PlayerConstants.MovementConstants.*;
@@ -15,7 +16,7 @@ public class Player extends MovingEntity{
 
     private final PlayerSprite sprite;
 
-    private boolean moving = false, mirrorPlayer = false, turning = false;
+    private boolean moving = false, mirrorPlayer = false, turning = false, attack = false;
 
     private int jumpCooldown = JUMP_CD;
     private boolean canJump = false;
@@ -41,8 +42,8 @@ public class Player extends MovingEntity{
     @Override
     public void render(Graphics g, int xOffset){
 
-        setAnimation();
         sprite.update();
+        setAnimation();
 
         if(mirrorPlayer && !turning || (!mirrorPlayer && turning)){
             g.drawImage(sprite.getImage(), (int)position.x+width - xOffset, (int)position.y, -width, height, null);
@@ -143,6 +144,12 @@ public class Player extends MovingEntity{
             return;
         }
 
+        if(attack){
+            sprite.setAnimationAction(ATTACK1);
+            return;
+        }
+
+
         if(moving && movementSpeed == WALKING_SPEED){
             sprite.setAnimationAction(WALKING);
         } else if(moving && movementSpeed == RUNNING_SPEED){
@@ -166,6 +173,21 @@ public class Player extends MovingEntity{
         }
     }
 
+    public void attack(){
+        if(attack){
+            return;
+        }
+
+        attack = true;
+        sprite.restartAnimation();
+
+        Vector<Entity> enemies = app.getLevelManager().entityTrigger(getBounds());
+
+        for(Entity entity: enemies){
+            entity.attackHandler(position);
+        }
+    }
+
     public void setMovementDir(int dir, boolean status){
         movementDir[dir] = status;
     }
@@ -180,5 +202,9 @@ public class Player extends MovingEntity{
 
     public void setTurning(boolean turning){
         this.turning = turning;
+    }
+
+    public void setAttack(boolean attack){
+        this.attack = attack;
     }
 }

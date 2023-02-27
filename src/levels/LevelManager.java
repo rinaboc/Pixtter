@@ -1,6 +1,7 @@
 package levels;
 
 import core.Application;
+import entities.Entity;
 import utils.math.vec2d;
 
 import java.awt.*;
@@ -30,6 +31,10 @@ public class LevelManager {
 
     public Vector<Rectangle> collisionTrigger(Rectangle bounds){
         return level1.collisionTrigger(bounds);
+    }
+
+    public Vector<Entity> entityTrigger(Rectangle bounds){
+        return level1.entityTrigger(bounds);
     }
 
     public boolean atBorderOfLevel(){
