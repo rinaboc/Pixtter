@@ -44,4 +44,8 @@ public class LevelManager {
     public Rectangle getOffset(){
         return level1.getOffset();
     }
+
+    public void deleteEntity(Entity entity){
+        level1.deleteEntity(entity);
+    }
 }

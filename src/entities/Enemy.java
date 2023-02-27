@@ -15,9 +15,11 @@ public class Enemy extends MovingEntity{
     private Random rnd = new Random();
 
     private int movementCD = 100;
-    private final float spawnRadius = 300f;
+    protected float spawnRadius = 300f;
     private vec2d spawnPosition;
     protected int attackedCD = 100;
+
+    protected vec2d debugVectoPlayer = new vec2d(0,0);
 
     public Enemy(Application app, float x, float y, int width, int height) {
         super(app, x, y, width, height);
@@ -64,41 +66,43 @@ public class Enemy extends MovingEntity{
     }
 
     private void determineDirection(){
-        if(movementCD != 0){
+        if(movementCD != 0 || attackedCD != 0){
             return;
         }
 
-        if(attackedCD != 0){
-            movementVec.x *= GROUND_DRAG;
-            return;
-        }
+        vec2d centerPoint = new vec2d((float) collider.getCenterX(), (float) collider.getCenterY());
 
-        vec2d vecToPlayer = new vec2d(position, app.getPlayer().getPosition());
-        vec2d spawnVec = new vec2d(position, spawnPosition);
+        vec2d vecToPlayer = new vec2d(centerPoint, app.getPlayer().getPosition());
+        vec2d spawnVec = new vec2d(centerPoint, spawnPosition);
 
         // player is in range -> follow player
         if(vecToPlayer.getLength() < spawnRadius){
-            System.out.println("player in radius");
+            debugVectoPlayer = vecToPlayer;
 
             movementSpeed = 0.6f;
 
-            movementDir[LEFT] = vecToPlayer.x < 0;
-            movementDir[RIGHT] = vecToPlayer.x > 0;
+            movementDir[LEFT] = vecToPlayer.x < 0 && vecToPlayer.getLength() > 30f;
+            movementDir[RIGHT] = vecToPlayer.x > 0 && vecToPlayer.getLength() > 30f;
 
             if(movementDir[RIGHT]){
                 movementVec.x = movementSpeed;
-            } else {
+            } else if(movementDir[LEFT]) {
                 movementVec.x = -movementSpeed;
+            } else {
+                movementVec.x = 0;
+                // attack player
+                //  TODO
+                //
             }
 
-            movementCD = 100;
+            movementCD = 50;
 
             return;
         }
 
         // normal speed and movement reaction slower
-        movementSpeed = 0.4f;
-        movementCD = 500;
+        movementSpeed = 0.3f;
+        movementCD = 400;
 
         // player not in range and enemy outside of spawn radius -> go back
         if(spawnVec.getLength() > spawnRadius){
@@ -134,7 +138,6 @@ public class Enemy extends MovingEntity{
         super.attackHandler(attackerPosition);
 
         attackedCD = 100;
-        movementCD += 200;
 
         System.out.println("attack handling");
     }

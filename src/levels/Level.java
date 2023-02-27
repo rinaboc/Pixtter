@@ -157,4 +157,18 @@ public class Level {
     public Rectangle getOffset(){
         return drawingSpace;
     }
+
+    public void deleteEntity(Entity entityToDelete) {
+        Entity[] newEntities = new Entity[255];
+
+        int i = 0;
+        for(Entity entity : entities){
+            if(entity != entityToDelete){
+                newEntities[i++] = entity;
+            }
+        }
+
+        entities = newEntities;
+
+    }
 }
