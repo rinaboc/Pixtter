@@ -1,7 +1,8 @@
 package entities;
 
 import core.Application;
-import utils.PlayerSprite;
+import utils.graphic.PlayerSprite;
+import utils.graphic.StatusBar;
 import utils.math.vec2d;
 
 import java.awt.*;
@@ -15,6 +16,7 @@ import static utils.Constants.PlayerConstants.PhysicsConstants.*;
 public class Player extends MovingEntity{
 
     private final PlayerSprite sprite;
+    private final StatusBar statusBar;
 
     private boolean moving = false, mirrorPlayer = false, turning = false, attack = false;
 
@@ -27,6 +29,7 @@ public class Player extends MovingEntity{
         collider = new Rectangle((int)(x + width/3), (int)(y + height/3), 2*width/3, 2*height/3);
         movementSpeed = WALKING_SPEED;
         sprite = new PlayerSprite(this);
+        statusBar = new StatusBar(new vec2d(position.x + width/4, position.y-40), 3*width/4, 10);
     }
 
     @Override
@@ -50,6 +53,8 @@ public class Player extends MovingEntity{
         } else {
             g.drawImage(sprite.getImage(), (int)position.x - xOffset, (int)position.y, width, height, null);
         }
+
+        statusBar.render(g, xOffset);
 
         // DEBUG DRAW
 //        g.setColor(Color.PINK);
@@ -76,25 +81,29 @@ public class Player extends MovingEntity{
 
     protected void updatePosition() {
 
+        if(attackedCD != 0){
+            attackedCD--;
+        }
+
         moving = false;
         boolean wasMirror = mirrorPlayer;
 
         // set the movement vector according to keys pressed
-        if(movementDir[LEFT] && !movementDir[RIGHT]){
+        if(movementDir[LEFT] && !movementDir[RIGHT] && attackedCD == 0){
             movementVec.x -= movementSpeed;
             mirrorPlayer = true;
-        } else if(movementDir[RIGHT] && !movementDir[LEFT]){
+        } else if(movementDir[RIGHT] && !movementDir[LEFT] && attackedCD == 0){
             movementVec.x += movementSpeed;
             mirrorPlayer = false;
         }
 
-        if(movementDir[UP] && !movementDir[DOWN]){
+        if(movementDir[UP] && !movementDir[DOWN] && attackedCD == 0){
             if(canJump && movementVec.y == 0){ // jump
                 movementVec.y -= JUMP_FORCE;
                 jumpCooldown = JUMP_CD;
                 canJump = false;
             }
-        } else if(movementDir[DOWN] && !movementDir[UP]){
+        } else if(movementDir[DOWN] && !movementDir[UP] && attackedCD == 0){
             movementVec.y += movementSpeed * 0.01;
         }
 
@@ -111,7 +120,8 @@ public class Player extends MovingEntity{
         // moving on the map
         if(!movementVec.nullVec()){
             // apply drags
-            if(canJump) movementVec.x *= GROUND_DRAG;
+            if(canJump && attackedCD == 0) movementVec.x *= GROUND_DRAG;
+            else if(attackedCD != 0) movementVec.x *= 0.9f;
             else movementVec.x *= AIR_DRAG;
             // apply movement to character position
             position = position.addVec(movementVec);
@@ -135,6 +145,9 @@ public class Player extends MovingEntity{
             turning = true;
             sprite.restartAnimation();
         }
+
+        statusBar.setPosition(new vec2d(position.x + width/4, position.y - 40));
+
     }
 
     private void setAnimation(){
@@ -199,6 +212,9 @@ public class Player extends MovingEntity{
     public vec2d getPosition(){
         return position;
     }
+    public vec2d getCenterPosition(){
+        return new vec2d((float) collider.getCenterX(), (float) collider.getCenterY());
+    }
 
     public void setTurning(boolean turning){
         this.turning = turning;
@@ -206,5 +222,16 @@ public class Player extends MovingEntity{
 
     public void setAttack(boolean attack){
         this.attack = attack;
+    }
+
+    @Override
+    public void attackHandler(vec2d attackerPosition) {
+        super.attackHandler(attackerPosition);
+
+        statusBar.changeHP(-0.1f);
+
+        if(statusBar.isDead()){
+            System.out.println("dead");
+        }
     }
 }

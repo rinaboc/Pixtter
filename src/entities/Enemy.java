@@ -7,6 +7,7 @@ import java.awt.*;
 import java.util.Random;
 
 import static utils.Constants.GamePalette.PALETTE;
+import static utils.Constants.PlayerConstants.MovementConstants.*;
 import static utils.Constants.PlayerConstants.MovementDir.*;
 import static utils.Constants.PlayerConstants.PhysicsConstants.*;
 
@@ -17,7 +18,7 @@ public class Enemy extends MovingEntity{
     private int movementCD = 100;
     protected float spawnRadius = 300f;
     private vec2d spawnPosition;
-    protected int attackedCD = 100;
+    protected boolean attack = false;
 
     protected vec2d debugVectoPlayer = new vec2d(0,0);
 
@@ -53,6 +54,7 @@ public class Enemy extends MovingEntity{
 
         if(attackedCD != 0){
             attackedCD--;
+            movementVec.x *= 0.9f;
         }
 
         determineDirection();
@@ -72,7 +74,7 @@ public class Enemy extends MovingEntity{
 
         vec2d centerPoint = new vec2d((float) collider.getCenterX(), (float) collider.getCenterY());
 
-        vec2d vecToPlayer = new vec2d(centerPoint, app.getPlayer().getPosition());
+        vec2d vecToPlayer = new vec2d(centerPoint, app.getPlayer().getCenterPosition());
         vec2d spawnVec = new vec2d(centerPoint, spawnPosition);
 
         // player is in range -> follow player
@@ -88,14 +90,21 @@ public class Enemy extends MovingEntity{
                 movementVec.x = movementSpeed;
             } else if(movementDir[LEFT]) {
                 movementVec.x = -movementSpeed;
-            } else {
-                movementVec.x = 0;
+            }
+
+            if(vecToPlayer.getLength() <= spawnRadius/3) {
                 // attack player
                 //  TODO
                 //
+
+                attackInit(vecToPlayer);
+                movementVec.x = 0;
+                movementVec.y -= BUMP_FORCE;
+                movementCD = 150;
+            } else {
+                movementCD = 50;
             }
 
-            movementCD = 50;
 
             return;
         }
@@ -137,8 +146,21 @@ public class Enemy extends MovingEntity{
     public void attackHandler(vec2d attackerPosition) {
         super.attackHandler(attackerPosition);
 
-        attackedCD = 100;
-
         System.out.println("attack handling");
+    }
+
+    protected void attackInit(vec2d atkVec){
+        app.getPlayer().attackHandler(position);
+
+//        if(atkVec.x > 0){
+//            movementVec.x = BUMP_FORCE;
+//        } else {
+//            movementVec.x = -BUMP_FORCE;
+//        }
+
+    }
+
+    public void setAttack(boolean attack) {
+        this.attack = attack;
     }
 }

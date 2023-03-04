@@ -23,6 +23,7 @@ public class Constants {
                 for (int j = 0; j < 12; j++) {
                     PALETTE[j] = Color.decode(Integer.toString(img.getRGB(j, 0)));
                 }
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
@@ -96,6 +97,26 @@ public class Constants {
             public static final float GRAVITY_PULL = 0.05f;
             public static final float GROUND_DRAG = 0.65f;
             public static final float AIR_DRAG = 0.7f;
+        }
+    }
+
+    public static class EffectConstants{
+        public static final int FX_SPARK = 0;
+
+        public static int GetEffectFrameCount(int effect_type){
+            switch (effect_type){
+                case FX_SPARK:
+                    return 4;
+                default:
+                    return 0;
+            }
+        }
+
+        public static int GetFXAnimationSpeed(int effect_type){
+            switch (effect_type){
+                default:
+                    return 12;
+            }
         }
     }
 }

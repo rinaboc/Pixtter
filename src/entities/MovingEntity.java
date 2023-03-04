@@ -19,6 +19,8 @@ public abstract class MovingEntity extends Entity{
     protected vec2d movementVec = new vec2d(0,0);
     protected float movementSpeed;
 
+    protected int attackedCD = 0;
+
     protected Vector<Rectangle> collidedObjectDebug = new Vector<>();
 
     public MovingEntity(Application app, float x, float y, int width, int height) {
@@ -79,17 +81,18 @@ public abstract class MovingEntity extends Entity{
     }
 
     public void attackHandler(vec2d attackerPosition){
-        vec2d attackVec = new vec2d(attackerPosition, position);
+        vec2d attackVec = new vec2d(attackerPosition, new vec2d((float) collider.getCenterX(), (float) collider.getCenterY()));
 
         if(attackVec.x < 0){
-            movementVec.x = -ATTACK_FORCE;
+            movementVec.x = - movementSpeed * 10;
         } else {
-            movementVec.x = ATTACK_FORCE;
+            movementVec.x =  movementSpeed * 10;
         }
 
         movementDir[LEFT] = movementDir[RIGHT] = false;
 
-        movementVec.y -= JUMP_FORCE / 2;
+        movementVec.y = - BUMP_FORCE * 10;
+        attackedCD = 80;
     }
 
     public void setCollider(Rectangle rect) {

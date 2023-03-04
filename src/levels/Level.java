@@ -1,7 +1,6 @@
 package levels;
 
 import core.Application;
-import entities.Enemy;
 import entities.Entity;
 import entities.Wolf;
 import utils.math.vec2d;
@@ -40,7 +39,7 @@ public class Level {
 
     public void render(Graphics g){
 
-        g.setColor(PALETTE[7]);
+        g.setColor(PALETTE[9]);
         for(Rectangle rect : collArray){
             if(rect == null) break;
 

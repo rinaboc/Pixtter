@@ -2,10 +2,12 @@ package core;
 
 import entities.Player;
 import levels.LevelManager;
+import utils.effects.Effect;
 
 import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
 import static utils.Constants.GameDimensions.*;
 import static utils.Constants.GamePalette.LoadPalette;
@@ -21,6 +23,7 @@ public class Application{
 
     private Player player;
     private LevelManager levelManager;
+    private Vector<Effect> effects;
 
     Application(){
         initClasses();
@@ -36,6 +39,7 @@ public class Application{
         LoadPalette();
         player = new Player((float)GAME_WIDTH/2 - 50, (float)GAME_HEIGHT/2, this);
         levelManager = new LevelManager(this);
+        effects = new Vector<>();
 
         for (int i = 0; i < gameTimers.length; i++) {
             gameTimers[i] = new Timer();
@@ -78,11 +82,23 @@ public class Application{
     private void gameUpdate() {
         player.update();
         levelManager.update();
+
+        for (int i = 0; i < effects.size(); i++) {
+            effects.elementAt(i).update();
+            if(!effects.elementAt(i).isActive()){
+                effects.remove(i);
+            }
+
+        }
     }
 
     public void render(Graphics g){
         levelManager.render(g);
         player.render(g, levelManager.getOffset().x);
+
+        for (int i = 0; i < effects.size(); i++) {
+            effects.elementAt(i).render(g, levelManager.getOffset().x);
+        }
     }
 
     public void windowFocusLost(){
@@ -94,5 +110,12 @@ public class Application{
     }
     public LevelManager getLevelManager(){
         return levelManager;
+    }
+    public void addEffect(Effect fx){
+        effects.add(fx);
+    }
+
+    public void removeEffect(Effect fx){
+        effects.remove(fx);
     }
 }
