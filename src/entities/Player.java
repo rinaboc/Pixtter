@@ -1,11 +1,15 @@
 package entities;
 
+import core.Main;
 import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import utils.*;
 import utils.graphic.Renderable;
 import utils.graphic.SpriteHandler;
 import utils.math.Vec2D;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public final class Player implements Renderable, Updateable {
 
@@ -14,19 +18,24 @@ public final class Player implements Renderable, Updateable {
         public static int TURN = 4, ATTACK = 5; // non looped animations
     }
 
-    private final double movementSpeed = 1.2d;
+    private final double movementSpeed = 0.8d;
+    private final double jumpPower = 5.2d;
     private final boolean[] direction = new boolean[4];
     private double xOffset, yOffset;
 
-    private boolean moving = false, mirrorPlayer = false, turning = false, attack = false;
+    private boolean moving = false, mirrorPlayer = false, turning = false, attack = false, canJump = true;
 
     private final SpriteHandler spriteHandler;
     private final PhysicsComponent physicsComponent;
 
-    public Player(double x, double y, double w, double h) {
-        physicsComponent = new PhysicsComponent(x, y, w, h);
+    public Player(double x, double y, double w, double h, Main main) {
+        physicsComponent = new PhysicsComponent(x, y, w, h, main);
+        physicsComponent.setUseGravity(true);
+        physicsComponent.addCollider(0, 0, 40, 24);
+        physicsComponent.setColliderDebugDraw(false);
+        main.addUpdateComponent(this);
 
-        this.spriteHandler = new SpriteHandler("resource/player-spritesheet.png", 6, 4, 50, 24,
+        this.spriteHandler = new SpriteHandler("res/player-spritesheet.png", 6, 4, 50, 24,
                 new int[][] {{3, 12}, {4, 12}, {3, 12}, {3, 12}, {3, 4}, {4, 8}});
         this.spriteHandler.setNonLoopAnimation(4, true);
         this.spriteHandler.setNonLoopAnimation(5, true);
@@ -34,38 +43,42 @@ public final class Player implements Renderable, Updateable {
 
     @Override
     public void update() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                boolean wasMirror = mirrorPlayer;
-                if(isMoving()){
-                    double xAxis = 0; double yAxis = 0;
+        boolean wasMirror = mirrorPlayer;
+        if(isMoving()){
+            double xAxis = 0; double yAxis = 0;
 
-                    if(direction[Constants.DIR.RIGHT.getIndex()] && !direction[Constants.DIR.LEFT.getIndex()]) {
-                        xAxis = 1d;
-                        mirrorPlayer = false;
-                    }
-                    else if(direction[Constants.DIR.RIGHT.getIndex()] != direction[Constants.DIR.LEFT.getIndex()]) {
-                        xAxis = -1d;
-                        mirrorPlayer = true;
-                    }
-
-                    if(direction[Constants.DIR.UP.getIndex()] && !direction[Constants.DIR.DOWN.getIndex()]) yAxis = 1d;
-                    else if(direction[Constants.DIR.UP.getIndex()] != direction[Constants.DIR.DOWN.getIndex()]) yAxis = -1d;
-
-                    moving = true;
-                    physicsComponent.pushBody(new Vec2D(xAxis * movementSpeed, yAxis * movementSpeed));
-
-                    // check if player wants to go in opposite direction -> apply turning animation
-                    if(wasMirror != mirrorPlayer){
-                        turning = true;
-                        spriteHandler.restartAnimation();
-                    }
-
-                } else moving = false;
-                physicsComponent.update();
+            if(direction[Constants.DIR.RIGHT.getIndex()] && !direction[Constants.DIR.LEFT.getIndex()]) {
+                xAxis = 1d;
+                mirrorPlayer = false;
+                moving = true;
             }
-        });
+            else if(direction[Constants.DIR.RIGHT.getIndex()] != direction[Constants.DIR.LEFT.getIndex()]) {
+                xAxis = -1d;
+                mirrorPlayer = true;
+                moving = true;
+            }
+
+            if(direction[Constants.DIR.UP.getIndex()] && !direction[Constants.DIR.DOWN.getIndex()] && canJump) {
+                yAxis = 1d;
+                canJump = false;
+            }
+
+            else if(!direction[Constants.DIR.UP.getIndex()] && direction[Constants.DIR.DOWN.getIndex()] && physicsComponent.getAcceleration().y() != 0d)
+                yAxis = -0.05d;
+
+            physicsComponent.pushBody(new Vec2D(xAxis * movementSpeed, yAxis * jumpPower));
+
+            // check if player wants to go in opposite direction -> apply turning animation
+            if(wasMirror != mirrorPlayer){
+                turning = true;
+                spriteHandler.restartAnimation();
+            }
+
+        } else moving = false;
+
+        if(!canJump && Math.abs(physicsComponent.getAcceleration().y()) == 0d){
+            canJump = true;
+        }
     }
 
     private void setAnimation(){
@@ -81,23 +94,14 @@ public final class Player implements Renderable, Updateable {
             else return;
         }
 
-//        if(moving && movementSpeed == WALKING_SPEED){
-//            spriteHandler.setAnimationAction(WALKING);
-//        } else if(moving && movementSpeed == RUNNING_SPEED){
-//            spriteHandler.setAnimationAction(RUNNING);
-//        }
-//        else {
-//            spriteHandler.setAnimationAction(IDLE);
-//        }
-
         if(moving){
             spriteHandler.setAnimationAction(Actions.WALK);
         } else
             spriteHandler.setAnimationAction(Actions.IDLE);
 
-//        if(movementVec.y != 0){
-//            sprite.setAnimationAction(FALLING);
-//        }
+        if(physicsComponent.getAcceleration().y() != 0){
+            spriteHandler.setAnimationAction(Actions.FALL);
+        }
 
     }
 

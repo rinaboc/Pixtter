@@ -12,7 +12,7 @@ import java.io.IOException;
 public class Level {
     private final Main main;
     private final Box[] collArray = new Box[255];
-    private static int TILE_SIZE = (int) (8 * 1.5d);
+    private static int TILE_SIZE = (int) (8 * Constants.SCR.SCALE);
 
     public Level(Main main, String path){
         this.main = main;
@@ -26,8 +26,6 @@ public class Level {
         try {
             Image img = new Image(new FileInputStream(path));
             PixelReader reader = img.getPixelReader();
-
-//            mapEnd = img.getWidth() * TILE_SIZE;
 
             // store each non transparent pixel of the source map according to their separate RGB values
             // useful for indexing and map generation
@@ -43,14 +41,14 @@ public class Level {
                         double y = (double) Constants.SCR.HEIGHT/2/TILE_SIZE - i;
 
                         if(collArray[greenValue-1] == null){
-//                            collArray[greenValue-1] = new Box((double) -Constants.SCR.WIDTH /2 + (j)*TILE_SIZE + (double) TILE_SIZE /2, (double) Constants.SCR.HEIGHT/2 - (i)*TILE_SIZE - (double) TILE_SIZE /2, TILE_SIZE, TILE_SIZE);
-                            collArray[greenValue-1] = new Box(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                            main.addRenderComponent(collArray[greenValue-1]);
+                            Box tile = new Box(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE, main);
+                            tile.setCollider(true);
+                            tile.setRender(true);
+                            collArray[greenValue-1] = tile;
                             continue;
                         }
 
-                        collArray[greenValue-1].add(new Box(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE));
-//                        collArray[greenValue-1].add(new Box((double) -Constants.SCR.WIDTH /2 + (j)*TILE_SIZE + (double) TILE_SIZE /2, (double) Constants.SCR.HEIGHT/2 - (i)*TILE_SIZE - (double) TILE_SIZE /2, TILE_SIZE, TILE_SIZE));
+                        collArray[greenValue-1].add(new Box(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE, main));
                     }
 
                     int redValue = (int)(reader.getColor(j, i).getRed()*255);

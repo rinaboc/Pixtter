@@ -5,10 +5,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import entities.Box;
 import entities.Line;
 import entities.Player;
 import input.InputManager;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 import levels.LevelManager;
 import utils.graphic.Renderable;
@@ -31,6 +33,8 @@ public class Main extends Application {
     private final Vector<Renderable> renderComponents = new Vector<>();
     private final Vector<Updateable> updateComponents = new Vector<>();
 
+    private final Vector<Box> colliderComponents = new Vector<>();
+
     private final ScheduledExecutorService appTasks = Executors.newScheduledThreadPool(2);
 
     @Override
@@ -44,8 +48,6 @@ public class Main extends Application {
     private void initGame(Stage primaryStage) {
 
         new InputManager(this);
-        player = new Player(0, 0, 50, 24);
-        addUpdateComponent(player);
 
         renderComponents.add(new Line(-1000, 0, 2000, 0));
         renderComponents.add(new Line(0, -1000, 0, 2000));
@@ -56,9 +58,11 @@ public class Main extends Application {
         for (int i = -SCR.HEIGHT/16; i < SCR.HEIGHT/16; i++) {
             renderComponents.add(new Line(-1000, i*8, 1000, i*8));
         }
-        renderComponents.add(player);
 
         levelManager = new LevelManager(this);
+
+        player = new Player(0, 0, 50, 24, this);
+        renderComponents.add(player);
 
         this.camera = new CameraComponent(this);
         this.camera.attachObject(player.getPhysicsComponent());
@@ -112,7 +116,12 @@ public class Main extends Application {
     }
 
     private void renderGame() {
-        camera.renderDebug();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                camera.renderDebug();
+            }
+        });
     }
 
     public Vector<Renderable> getRenderComponents(){
@@ -122,8 +131,38 @@ public class Main extends Application {
         renderComponents.add(component);
     }
 
+    public void removeRenderComponent(Renderable component){
+        if(!renderComponents.remove(component)){
+            System.out.println("Couldn't remove render component.");
+        }
+    }
+
     public void addUpdateComponent(Updateable component){
         updateComponents.add(component);
+    }
+
+    public void removeUpdateComponent(Updateable component){
+        if(!updateComponents.remove(component)){
+            System.out.println("Couldn't remove update component.");
+        }
+    }
+
+    public void addColliderComponent(Box collider){
+        if(collider.isCollider() && !colliderComponents.contains(collider)){
+            colliderComponents.add(collider);
+        } else {
+            System.out.println("Isn't a collider or container already contains the collider.");
+        }
+    }
+
+    public void removeColliderComponent(Box collider){
+        if(!colliderComponents.remove(collider)){
+            System.out.println("Couldn't removed collider component.");
+        }
+    }
+
+    public Vector<Box> getColliderComponents(){
+        return new Vector<>(colliderComponents);
     }
 
     public Scene getScene() {

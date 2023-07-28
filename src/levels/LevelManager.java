@@ -8,7 +8,7 @@ public class LevelManager {
 
     public LevelManager(Main main){
         this.main = main;
-        level1 = new Level(main, "resource/level1.png");
+        level1 = new Level(main, "res/level1.png");
     }
 
     public void update(){

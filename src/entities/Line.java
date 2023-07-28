@@ -18,7 +18,7 @@ public class Line implements Renderable {
 
     @Override
     public void render(GraphicsContext g) {
-        g.setFill(Color.BLACK);
+        g.setStroke(Color.LIGHTGREY);
         g.strokeLine((double) Constants.SCR.WIDTH /2 + x + xOffset, (double) Constants.SCR.HEIGHT /2 - y + yOffset,
                 (double) Constants.SCR.WIDTH /2 + x2 + xOffset, (double) Constants.SCR.HEIGHT /2 - y2 + yOffset);
     }

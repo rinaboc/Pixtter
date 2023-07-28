@@ -7,7 +7,6 @@ module Pixtter2 {
     exports input;
     exports utils.math;
     exports utils;
-    exports window;
     exports levels;
     exports utils.graphic;
 }
