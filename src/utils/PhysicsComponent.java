@@ -7,27 +7,31 @@ import utils.math.Vec2D;
 
 import java.util.Vector;
 
+import static levels.Level.TILE_SIZE;
+import static utils.Constants.PHYS.GRAVITY;
+
 public class PhysicsComponent implements Updateable {
 
     private final Main main;
 
     private Vec2D position;
-    private Vec2D acceleration;
     private Dimension2D dimension;
-    private boolean useGravity;
+    private Vec2D acceleration;
 
-    private final Vector<Box> colliders;
+    // simulation variables
+    private boolean useGravity = false;
+    private double bump = 0d;
+    private Vec2D drag = new Vec2D(1d, 1d);
+    private final Vector<Box> colliders = new Vector<>();
 
     public PhysicsComponent(double x, double y, double width, double height, Main main){
         this.main = main;
         this.position = new Vec2D(x, y);
         this.dimension = new Dimension2D(width, height);
         this.acceleration = new Vec2D(0, 0);
-        this.colliders = new Vector<>();
 
-        main.addUpdateComponent(this);
+        main.addUpdateComponent(this); // add to update loop
     }
-
 
     public void removeFromUpdateLoop(){
         main.removeUpdateComponent(this);
@@ -40,11 +44,17 @@ public class PhysicsComponent implements Updateable {
     public Vec2D getPosition(){
         return position;
     }
-
     public Dimension2D getDimensions(){
         return dimension;
     }
+    public Vec2D getAcceleration() {
+        return acceleration;
+    }
 
+    /**
+     * Shifts component's position by the given vector.
+     * @param vec
+     */
     public void moveBody(Vec2D vec){
         if(vec == null) return;
         position.add(vec);
@@ -54,6 +64,10 @@ public class PhysicsComponent implements Updateable {
         }
     }
 
+    /**
+     * Create force in the direction of the given vector.
+     * @param vec
+     */
     public void pushBody(Vec2D vec){
         if(vec == null) return;
         acceleration.add(vec);
@@ -62,15 +76,17 @@ public class PhysicsComponent implements Updateable {
     public void setPosition(Vec2D vec){
         position = vec;
     }
-
     public void setDimension(Dimension2D dim){
         dimension = dim;
     }
 
-    public Vec2D getAcceleration() {
-        return acceleration;
-    }
-
+    /**
+     * Creates a collider box for the physics component with the given parameters.
+     * @param locX local x position (added to component's position)
+     * @param locY local y position (added to component's position)
+     * @param width
+     * @param height
+     */
     public void addCollider(double locX, double locY, double width, double height){
         Box collider = new Box(position.x() + locX, position.y() + locY, width, height, main);
         collider.setCollider(true);
@@ -80,7 +96,17 @@ public class PhysicsComponent implements Updateable {
     public void setUseGravity(boolean status){
         useGravity = status;
     }
+    public void setBumpStrength(double strength){
+        this.bump = strength;
+    }
+    public void setDrag(double x, double y){
+        drag = new Vec2D(x, y);
+    }
 
+    /**
+     * Add or remove collider objects from render loop.
+     * @param status
+     */
     public void setColliderDebugDraw(boolean status){
         for(Box collider : colliders){
             collider.setRender(status);
@@ -89,12 +115,12 @@ public class PhysicsComponent implements Updateable {
 
     @Override
     public void update(){
-        acceleration = acceleration.multiply(new Vec2D(0.7, 0.98)); // apply drag
+        acceleration = acceleration.multiply(drag); // apply drag
         if(Math.abs(acceleration.x()) < 0.0001d)
             acceleration = acceleration.multiply(new Vec2D(0, 1d)); // rounding
 
         if(useGravity){
-            acceleration.add(new Vec2D(0.0, -0.1));
+            acceleration.add(new Vec2D(0.0, -GRAVITY));
         }
 
         // collision check
@@ -115,6 +141,12 @@ public class PhysicsComponent implements Updateable {
                         nextBoxPosition.moveBox(new Vec2D(acceleration.x(), 0));
                         if(nextBoxPosition.intersects(collider)){
                             limitedAcceleration.subtract(new Vec2D(acceleration.x(), 0));
+
+                            double topDifference = (collider.getPosition().y() + collider.getDimension().getHeight()/2) -
+                                    (thisCollider.getPosition().y() - thisCollider.getDimension().getHeight()/2);
+                            if(bump != 0 && Math.abs(limitedAcceleration.y()) < 1d && Math.abs(topDifference) <= TILE_SIZE){
+                                limitedAcceleration.add(new Vec2D(0, bump));
+                            }
                         }
 
                         // yAxis collision check
@@ -131,7 +163,6 @@ public class PhysicsComponent implements Updateable {
             }
         }
 
-//        System.out.println(acceleration);
         moveBody(acceleration);
     }
 }

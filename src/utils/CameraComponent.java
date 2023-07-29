@@ -1,7 +1,6 @@
 package utils;
 
 import core.Main;
-import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -15,32 +14,42 @@ import java.util.TimerTask;
 public class CameraComponent extends Group implements Updateable {
 
     private final Main main;
-    private final Canvas canvas;
+    private final Canvas canvas; // game gets rendered on this
     private final GraphicsContext graphics;
-    private Vec2D position;
-    private PhysicsComponent followedObject;
+
+    private Vec2D position = new Vec2D(0, 0);
+    private PhysicsComponent followedObject = null;
 
     public CameraComponent(Main main) {
         this.main = main;
         this.canvas = new Canvas(SCR.WIDTH, SCR.HEIGHT);
-        this.canvas.getGraphicsContext2D().setImageSmoothing(false);
-        this.position = new Vec2D(0, 0);
+        this.canvas.getGraphicsContext2D().setImageSmoothing(false); // for pixel art
 
         this.getChildren().add(canvas);
         this.graphics = this.canvas.getGraphicsContext2D();
-        followedObject = null;
     }
 
+    /**
+     * Attach camera to a physics component. It will follow the attached object.
+     * @param o
+     */
     public void attachObject(PhysicsComponent o){
         followedObject = o;
         main.addUpdateComponent(this);
     }
 
+    /**
+     * Set renderable object's draw offset according to the camera's position.
+     * @param object
+     */
     private void calculateOffset(Renderable object) {
         object.setOffset(-position.x(), position.y());
     }
 
-    public void renderDebug() {
+    /**
+     * Renders the game scene.
+     */
+    public void renderScreen() {
         graphics.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         for (Renderable element : main.getRenderComponents()) {
@@ -49,7 +58,7 @@ public class CameraComponent extends Group implements Updateable {
         }
     }
 
-    public void moveCamera(Vec2D vec) {
+    public void setPosition(Vec2D vec) {
         this.position = new Vec2D(vec);
     }
 

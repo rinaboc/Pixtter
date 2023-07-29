@@ -12,7 +12,7 @@ import java.io.IOException;
 public class Level {
     private final Main main;
     private final Box[] collArray = new Box[255];
-    private static int TILE_SIZE = (int) (8 * Constants.SCR.SCALE);
+    public static int TILE_SIZE = (int) (8 * Constants.SCR.SCALE);
 
     public Level(Main main, String path){
         this.main = main;

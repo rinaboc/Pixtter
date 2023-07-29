@@ -49,14 +49,14 @@ public class Main extends Application {
 
         new InputManager(this);
 
-        renderComponents.add(new Line(-1000, 0, 2000, 0));
-        renderComponents.add(new Line(0, -1000, 0, 2000));
+        renderComponents.add(new Line(-1000, 0, 2000, 0, null));
+        renderComponents.add(new Line(0, -1000, 0, 2000, null));
         for (int i = -SCR.WIDTH/16; i < SCR.WIDTH/16; i++) {
-            renderComponents.add(new Line(i*8, -1000, i*8, 1000));
+            renderComponents.add(new Line(i*8, -1000, i*8, 1000, null));
         }
 
         for (int i = -SCR.HEIGHT/16; i < SCR.HEIGHT/16; i++) {
-            renderComponents.add(new Line(-1000, i*8, 1000, i*8));
+            renderComponents.add(new Line(-1000, i*8, 1000, i*8, null));
         }
 
         levelManager = new LevelManager(this);
@@ -119,7 +119,7 @@ public class Main extends Application {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                camera.renderDebug();
+                camera.renderScreen();
             }
         });
     }

@@ -1,15 +1,12 @@
 package entities;
 
 import core.Main;
-import javafx.application.Platform;
+import javafx.geometry.Dimension2D;
 import javafx.scene.canvas.GraphicsContext;
 import utils.*;
 import utils.graphic.Renderable;
 import utils.graphic.SpriteHandler;
 import utils.math.Vec2D;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 public final class Player implements Renderable, Updateable {
 
@@ -19,11 +16,11 @@ public final class Player implements Renderable, Updateable {
     }
 
     private final double movementSpeed = 0.8d;
-    private final double jumpPower = 5.2d;
+    private final double jumpPower = 4.8d;
     private final boolean[] direction = new boolean[4];
     private double xOffset, yOffset;
 
-    private boolean moving = false, mirrorPlayer = false, turning = false, attack = false, canJump = true;
+    private boolean moving = false, mirrorPlayer = false, turning = false, attack = false, canJump = false;
 
     private final SpriteHandler spriteHandler;
     private final PhysicsComponent physicsComponent;
@@ -33,6 +30,8 @@ public final class Player implements Renderable, Updateable {
         physicsComponent.setUseGravity(true);
         physicsComponent.addCollider(0, 0, 40, 24);
         physicsComponent.setColliderDebugDraw(false);
+        physicsComponent.setBumpStrength(0.4d);
+        physicsComponent.setDrag(0.7, 0.98);
         main.addUpdateComponent(this);
 
         this.spriteHandler = new SpriteHandler("res/player-spritesheet.png", 6, 4, 50, 24,
@@ -81,6 +80,9 @@ public final class Player implements Renderable, Updateable {
         }
     }
 
+    /**
+     * Set sprite's currently playing animation according the player input.
+     */
     private void setAnimation(){
         if(turning){
             spriteHandler.setAnimationAction(Actions.TURN);
@@ -112,11 +114,12 @@ public final class Player implements Renderable, Updateable {
         setAnimation();
 
         Vec2D position = physicsComponent.getRenderPosition();
+        Dimension2D dimension = physicsComponent.getDimensions();
 
         if(mirrorPlayer && !turning || (!mirrorPlayer && turning)){
-            g.drawImage(spriteHandler.getImage(), position.x() + physicsComponent.getDimensions().getWidth() + xOffset, position.y() + yOffset, -physicsComponent.getDimensions().getWidth(), physicsComponent.getDimensions().getHeight());
+            g.drawImage(spriteHandler.getImage(), position.x() + dimension.getWidth() + Math.floor(xOffset), position.y() + Math.floor(yOffset), -dimension.getWidth(), dimension.getHeight());
         } else {
-            g.drawImage(spriteHandler.getImage(), position.x() + xOffset, position.y() + yOffset, physicsComponent.getDimensions().getWidth(), physicsComponent.getDimensions().getHeight());
+            g.drawImage(spriteHandler.getImage(), position.x() + Math.floor(xOffset), position.y() + Math.floor(yOffset), dimension.getWidth(), dimension.getHeight());
         }
 
     }
@@ -140,9 +143,14 @@ public final class Player implements Renderable, Updateable {
         }
     }
 
+    /**
+     * Initiate attack sequence.
+     */
     public void attack(){
         attack = true;
         spriteHandler.restartAnimation();
+
+        /// TODO attack handling/events
     }
 
     public PhysicsComponent getPhysicsComponent(){

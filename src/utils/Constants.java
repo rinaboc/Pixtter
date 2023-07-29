@@ -22,4 +22,8 @@ public class Constants {
             return index;
         }
     }
+
+    public static class PHYS {
+        public static double GRAVITY = 0.1d;
+    }
 }

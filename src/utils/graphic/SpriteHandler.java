@@ -1,20 +1,22 @@
 package utils.graphic;
 
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 
+/**
+ * Sprite handling object. Does all the things a sprite needs to do.
+ */
 public class SpriteHandler {
 
-    private final Image[][] animationFrames;
-    private int[][] animationSettings;
-    private final boolean[] noLoop;
+    private final Image[][] animationFrames; // source frames
+    private int[][] animationSettings; // animation action -> {sprite amount, animation speed}
+    private final boolean[] noLoop; // not looping animation flags
     private int aniTick, aniIndex;
-    private int animationAction;
+    private int animationAction; // currently playing animation index
     private boolean stopped;
 
     public SpriteHandler(String path, int row, int col, int width, int height, int[][] aniSettings) {
@@ -31,10 +33,17 @@ public class SpriteHandler {
         updateAnimationTick();
     }
 
+    /**
+     * Get currently played animation frame.
+     * @return
+     */
     public Image getImage(){
         return animationFrames[animationAction][aniIndex];
     }
 
+    /**
+     * Start animation from the beginning.
+     */
     public void restartAnimation(){
         aniIndex = 0;
     }
@@ -43,6 +52,11 @@ public class SpriteHandler {
         return stopped;
     }
 
+    /**
+     * Sets flag for non-looped animation.
+     * @param index
+     * @param status
+     */
     public void setNonLoopAnimation(int index, boolean status){
         if(index >= noLoop.length || index < 0) {
             System.out.println("Index out of bounds. Cannot set non loop animation.");
@@ -51,6 +65,10 @@ public class SpriteHandler {
         noLoop[index] = status;
     }
 
+    /**
+     * Set currently played animation.
+     * @param animationAction animation's index
+     */
     public void setAnimationAction(int animationAction){
         if(animationAction >= animationFrames.length || animationAction < 0) {
             System.out.println("Index out of bounds. Cannot set animation action.");
@@ -64,6 +82,9 @@ public class SpriteHandler {
         checkAnimationIndexOverflow();
     }
 
+    /**
+     * Trigger new animation tick and set frames according to the animation speed of current animation action.
+     */
     private void updateAnimationTick() {
         if(stopped) return;
 
@@ -104,6 +125,12 @@ public class SpriteHandler {
         return animationSettings[animationAction][0];
     }
 
+    /**
+     * Reads image from source path and cuts it up according to given parameters at sprite constructor.
+     * @param path source
+     * @param width single frame width
+     * @param height single frame height
+     */
     private void loadAnimations(String path, int width, int height) {
         try {
             Image image = new Image(new FileInputStream(path));
