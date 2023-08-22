@@ -11,16 +11,22 @@ import entities.Player;
 import input.InputManager;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import levels.LevelManager;
-import utils.graphic.Renderable;
+import utils.graphics.Renderable;
 import utils.Constants.SCR;
-import utils.Updateable;
-import utils.CameraComponent;
+import utils.simulation.Updateable;
+import utils.graphics.CameraComponent;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
+import utils.graphics.UIHandler;
+import utils.math.Vec2D;
 
 
+/**
+ * Game class, handles everything.
+ */
 public class Main extends Application {
 
     private VBox root;
@@ -45,10 +51,15 @@ public class Main extends Application {
     }
 
 
+    /**
+     * Sets up game variables and parameters.
+     * @param primaryStage
+     */
     private void initGame(Stage primaryStage) {
 
-        new InputManager(this);
+        new InputManager(this); // input init
 
+        // coordinate system for debugging purposes
         renderComponents.add(new Line(-1000, 0, 2000, 0, null));
         renderComponents.add(new Line(0, -1000, 0, 2000, null));
         for (int i = -SCR.WIDTH/16; i < SCR.WIDTH/16; i++) {
@@ -59,16 +70,30 @@ public class Main extends Application {
             renderComponents.add(new Line(-1000, i*8, 1000, i*8, null));
         }
 
-        levelManager = new LevelManager(this);
+        // load levels
+        this.levelManager = new LevelManager(this);
 
-        player = new Player(0, 0, 50, 24, this);
-        renderComponents.add(player);
+        // create player
+        this.player = new Player(0, 0, 50, 24, this);
+        this.renderComponents.add(this.player);
 
+        // create camera and attach to player
         this.camera = new CameraComponent(this);
         this.camera.attachObject(player.getPhysicsComponent());
+        this.camera.setLocalOffset(new Vec2D(0, 120d));
+
+        // set up UI
+        UIHandler uiHandler = new UIHandler();
+        Label label = new Label("Hello UI.");
+        label.setLayoutX(200d);
+        label.setLayoutY(10d);
+        uiHandler.addStaticUIComponent(label);
+
+        this.camera.enableUI(uiHandler);
+        this.camera.getUiHandler().addGraphicUIComponent(this.player.getStatusBar());
         root.getChildren().add(camera);
 
-
+        // game loops init
         Thread startThreads = new Thread(() -> {
             appTasks.scheduleAtFixedRate(new Runnable() {
 
@@ -94,6 +119,10 @@ public class Main extends Application {
     }
 
 
+    /**
+     * Sets up window.
+     * @param primaryStage
+     */
     private void initWindow(Stage primaryStage) {
         root = new VBox(5d);
         primaryStage.setTitle("Pixtter");
@@ -109,12 +138,18 @@ public class Main extends Application {
         });
     }
 
+    /**
+     * Go through added components and update all of them.
+     */
     private void updateGame() {
         for(Updateable object : updateComponents){
             object.update();
         }
     }
 
+    /**
+     * Render the game via the camera component.
+     */
     private void renderGame() {
         Platform.runLater(new Runnable() {
             @Override
@@ -125,12 +160,16 @@ public class Main extends Application {
     }
 
     public Vector<Renderable> getRenderComponents(){
-        return new Vector<Renderable>(renderComponents);
+        return new Vector<>(renderComponents);
     }
     public void addRenderComponent(Renderable component){
         renderComponents.add(component);
     }
 
+    /**
+     * Searches for the given renderable compnent and deletes it if it's present in the renderComponents.
+     * @param component
+     */
     public void removeRenderComponent(Renderable component){
         if(!renderComponents.remove(component)){
             System.out.println("Couldn't remove render component.");

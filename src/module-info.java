@@ -8,5 +8,7 @@ module Pixtter2 {
     exports utils.math;
     exports utils;
     exports levels;
-    exports utils.graphic;
+    exports utils.graphics;
+    exports utils.simulation;
+    exports utils.exceptions;
 }

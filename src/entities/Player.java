@@ -4,9 +4,13 @@ import core.Main;
 import javafx.geometry.Dimension2D;
 import javafx.scene.canvas.GraphicsContext;
 import utils.*;
-import utils.graphic.Renderable;
-import utils.graphic.SpriteHandler;
+import utils.graphics.Renderable;
+import utils.graphics.SpriteHandler;
+import utils.graphics.StatusBar;
 import utils.math.Vec2D;
+import utils.simulation.PhysicsComponent;
+import utils.simulation.Status;
+import utils.simulation.Updateable;
 
 public final class Player implements Renderable, Updateable {
 
@@ -15,7 +19,7 @@ public final class Player implements Renderable, Updateable {
         public static int TURN = 4, ATTACK = 5; // non looped animations
     }
 
-    private final double movementSpeed = 0.8d;
+    private final double movementSpeed = 0.6d;
     private final double jumpPower = 4.8d;
     private final boolean[] direction = new boolean[4];
     private double xOffset, yOffset;
@@ -24,6 +28,8 @@ public final class Player implements Renderable, Updateable {
 
     private final SpriteHandler spriteHandler;
     private final PhysicsComponent physicsComponent;
+    private final Status playerStatus;
+    private final StatusBar statusBar;
 
     public Player(double x, double y, double w, double h, Main main) {
         physicsComponent = new PhysicsComponent(x, y, w, h, main);
@@ -38,6 +44,10 @@ public final class Player implements Renderable, Updateable {
                 new int[][] {{3, 12}, {4, 12}, {3, 12}, {3, 12}, {3, 4}, {4, 8}});
         this.spriteHandler.setNonLoopAnimation(4, true);
         this.spriteHandler.setNonLoopAnimation(5, true);
+
+        playerStatus = new Status();
+        playerStatus.newEntry("health", new Status.Entry(0.5d));
+        statusBar = new StatusBar(playerStatus, physicsComponent, new Vec2D(-physicsComponent.getDimensions().getWidth()/4, -50d), new Dimension2D(80, 10));
     }
 
     @Override
@@ -96,14 +106,15 @@ public final class Player implements Renderable, Updateable {
             else return;
         }
 
+        if(Math.abs(physicsComponent.getAcceleration().y()) > 0.1d || !canJump){
+            spriteHandler.setAnimationAction(Actions.FALL);
+            return;
+        }
+
         if(moving){
             spriteHandler.setAnimationAction(Actions.WALK);
         } else
             spriteHandler.setAnimationAction(Actions.IDLE);
-
-        if(physicsComponent.getAcceleration().y() != 0){
-            spriteHandler.setAnimationAction(Actions.FALL);
-        }
 
     }
 
@@ -155,6 +166,9 @@ public final class Player implements Renderable, Updateable {
 
     public PhysicsComponent getPhysicsComponent(){
         return physicsComponent;
+    }
+    public StatusBar getStatusBar() {
+        return statusBar;
     }
 
 }

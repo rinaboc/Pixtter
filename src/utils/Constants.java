@@ -2,7 +2,7 @@ package utils;
 
 public class Constants {
     public static class SCR {
-        public static double SCALE = 1d;
+        public static double SCALE = 1.5d;
         public static int WIDTH = (int) (640 * SCALE);
         public static int HEIGHT = (int) (360 * SCALE);
         public static int FPS = 60;

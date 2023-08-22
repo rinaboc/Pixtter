@@ -5,10 +5,10 @@ import javafx.geometry.Dimension2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import utils.graphic.Renderable;
+import utils.graphics.Renderable;
 import utils.math.Vec2D;
 
-import static utils.CameraComponent.getRenderPosition;
+import static utils.graphics.CameraComponent.getRenderPosition;
 
 /**
  * Box primitive, made for many purposes.
