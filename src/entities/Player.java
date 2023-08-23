@@ -4,6 +4,7 @@ import core.Main;
 import javafx.geometry.Dimension2D;
 import javafx.scene.canvas.GraphicsContext;
 import utils.*;
+import utils.exceptions.EntryNotFound;
 import utils.graphics.Renderable;
 import utils.graphics.SpriteHandler;
 import utils.graphics.StatusBar;
@@ -46,8 +47,15 @@ public final class Player implements Renderable, Updateable {
         this.spriteHandler.setNonLoopAnimation(5, true);
 
         playerStatus = new Status();
-        playerStatus.newEntry("health", new Status.Entry(0.5d));
-        statusBar = new StatusBar(playerStatus, physicsComponent, new Vec2D(-physicsComponent.getDimensions().getWidth()/4, -50d), new Dimension2D(80, 10));
+        playerStatus.newEntry("health", new Status.Entry(1d, 0, 1));
+        statusBar = new StatusBar(playerStatus, new Vec2D(-physicsComponent.getDimensions().getWidth()/4, -50d), new Dimension2D(80, 10));
+        statusBar.attachPhysicsComponent(physicsComponent);
+
+        try {
+            physicsComponent.setUseFallDmg(playerStatus.getEntry("health"));
+        } catch (EntryNotFound e) {
+            System.out.println("No entry found.");
+        }
     }
 
     @Override

@@ -9,6 +9,7 @@ import java.util.Vector;
 
 public class UIHandler extends Group implements Renderable, Updateable {
 
+    // custom uiComponents which aren't Node types (rely on draw)
     Vector<UIComponent> uiComponents = new Vector<>();
 
     public UIHandler(){
@@ -36,10 +37,18 @@ public class UIHandler extends Group implements Renderable, Updateable {
         }
     }
 
+    /**
+     * Adds a Node type component to its group.
+     * @param component
+     */
     public void addStaticUIComponent(Node component){
         this.getChildren().add(component);
     }
 
+    /**
+     * Custom ui components are handled separately. They are in the update as well as the render loop.
+     * @param component custom UIComponent that relies on graphics
+     */
     public void addGraphicUIComponent(UIComponent component){
         uiComponents.add(component);
     }

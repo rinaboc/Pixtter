@@ -11,20 +11,39 @@ public class Status {
      */
     public static class Entry {
         private double value;
-        private final double[] limits = new double[2];
+
+        private double bottomLimit;
+        private boolean bottomLimitSet = false;
+
+        private double topLimit;
+        private boolean topLimitSet = false;
 
         public Entry(double initVal){
             this.value = initVal;
         }
 
+        //
+        // limit setting
+        //
+        public Entry(double initVal, double bottomLimit, double topLimit){
+            this.value = initVal;
+            this.bottomLimit = bottomLimit; this.bottomLimitSet = true;
+            this.topLimit = topLimit; this.topLimitSet = true;
+            checkLimits();
+        }
         public void setBottomLimit(double bottom) {
-            limits[0] = bottom;
+            bottomLimit = bottom; bottomLimitSet = true;
         }
-
         public void setTopLimit(double top) {
-            limits[1] = top;
+            topLimit = top; topLimitSet = true;
+        }
+        public void releaseLimits(){
+            bottomLimitSet = false; topLimitSet = false;
         }
 
+        //
+        // manipulate value
+        //
         public synchronized void addValue(double value) {
             this.value += value;
             checkLimits();
@@ -35,13 +54,16 @@ public class Status {
             checkLimits();
         }
 
+        /**
+         * Checks if the value is between the set limits if they are enabled.
+         */
         private void checkLimits() {
-            if (this.value < limits[0]) {
-                this.value = limits[0];
+            if (bottomLimitSet && this.value < bottomLimit) {
+                this.value = bottomLimit;
                 return;
             }
 
-            if (this.value > limits[1]) this.value = limits[1];
+            if (topLimitSet && this.value > topLimit) this.value = topLimit;
         }
 
         public double getValue(){

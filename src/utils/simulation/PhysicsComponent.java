@@ -24,6 +24,7 @@ public class PhysicsComponent implements Updateable {
     private double bump = 0d;
     private Vec2D drag = new Vec2D(1d, 1d);
     private final Vector<Box> colliders = new Vector<>();
+    private Status.Entry healthEntry = null;
 
     public PhysicsComponent(double x, double y, double width, double height, Main main){
         this.main = main;
@@ -94,6 +95,9 @@ public class PhysicsComponent implements Updateable {
         colliders.add(collider);
     }
 
+    //
+    // simulation flags
+    //
     public void setUseGravity(boolean status){
         useGravity = status;
     }
@@ -102,6 +106,9 @@ public class PhysicsComponent implements Updateable {
     }
     public void setDrag(double x, double y){
         drag = new Vec2D(x, y);
+    }
+    public void setUseFallDmg(Status.Entry healthEntry){
+        this.healthEntry = healthEntry;
     }
 
     /**
@@ -123,6 +130,7 @@ public class PhysicsComponent implements Updateable {
         if(useGravity){
             acceleration.add(new Vec2D(0.0, -GRAVITY));
         }
+
 
         // collision check
         if(!colliders.isEmpty()){
@@ -155,6 +163,12 @@ public class PhysicsComponent implements Updateable {
                         nextBoxPosition.moveBox(new Vec2D(0, acceleration.y()));
                         if(nextBoxPosition.intersects(collider)){
                             limitedAcceleration.subtract(new Vec2D(0, acceleration.y()));
+
+                            // fall damage check (if enabled)
+                            if(healthEntry != null && Math.abs(acceleration.y()) >= 3.8d) {
+                                healthEntry.addValue(-0.1d);
+                                limitedAcceleration.add(new Vec2D(limitedAcceleration.x()*2, bump*2));
+                            }
                         }
 
                         acceleration = new Vec2D(limitedAcceleration);
